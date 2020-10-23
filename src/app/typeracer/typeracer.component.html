@@ -1,0 +1,19 @@
+<div class="roomId container">
+    <h1 class="d-inline text-center mr-0">Room ID: {{ roomId }}</h1>
+</div>
+<div class="container">
+    <input *ngIf='show' class ="row form-control" type="text" placeholder="Enter your name" #box (keyup.enter)="onEnter(box.value)"/>
+    <div *ngIf="!show" class="row"> 
+        <div class="col-1" style="padding: 0%;">{{ name }}</div>
+        <div  class="progress" style="padding: 0;width: 89%;">
+            
+            <div class="progress-bar" [style]="styleExpression">
+            </div>
+        </div>
+    </div>
+    
+    <div class="row paragraph container">{{ paragraph }}</div>
+    <input type="text" class="row contain form-control" #a (keyup.space)="onSpace(a)"/>
+    
+
+</div> 

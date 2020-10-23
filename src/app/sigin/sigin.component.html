@@ -1,0 +1,21 @@
+<h1 class="text-center text-primary">LOG IN</h1>
+<div class="container">
+        <div class="form-group">
+          <a class="btn btn-primary text-white item" title=" log in with facebook" (click)="googleLogIn()">Facebook</a>
+        </div>
+        <div class="form-group">
+          <a routerLink="/play" class="btn btn-danger text-white item" title="log in with goole">Google</a>
+        </div>
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+</div>
+<div class="container mt-5">
+  <h2>Google Login</h2>
+  <div class="row mt-5">
+    <div class="col-md-4 mt-2 m-auto ">
+          <button class="login-Btn" #loginRef>
+            Login with Google<img class="social-btn-icon" alt="Login with Google" src="https://hrcdn.net/fcore/assets/google-colored-20b8216731.svg">
+          </button>
+    </div>   
+  </div>
+ 
+</div>
