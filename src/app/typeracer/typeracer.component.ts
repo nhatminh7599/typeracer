@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
-import { SocketioService } from "../socketio.service"
 
 
 @Component({
@@ -9,59 +8,85 @@ import { SocketioService } from "../socketio.service"
   styleUrls: ['./typeracer.component.css']
 })
 export class TyperacerComponent implements OnInit {
-  show :boolean
-  paragraph : string
-  percent : number
-  roomId :number
-  p : string[]
-  name : string
-  contain :string
-  i : number
+  show: boolean
+  percent: number
+  name: string
   styleExpression: string
-
   data: any[]
+  
+  public paragraph : string[]
+  public currentInput: string;
+  public pastWords: string[] = [];
+  public currentWord: string = "";
+  public futureWords: string[] = [];
+  public warn: boolean;
+  public sumWord: number;
 
-  constructor(private db: AngularFireDatabase, private socketService: SocketioService) {
-    db.list('/data').valueChanges().subscribe(data => {
-      this.show = true
-      this.roomId = Math.ceil(Math.random()*100%7);
-      this.data = data
-      this.paragraph = this.data[this.roomId-1]
-      this.p = this.paragraph.split(/\s/)
-      console.log(this.p)
-      this.i = 0
-      this.percent = 0
-      this.styleExpression = `width:${this.percent}%`
-      this.socketService.setupSocketConnection()
-      
-    })
-    
-
-    
+  constructor(private db: AngularFireDatabase) {
+    this.show = true
   } 
   
   ngOnInit(): void {
-    
+    this.db.list('/data').valueChanges().subscribe(data => {
+      this.data = data
+      this.paragraph = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
+      this.sumWord = this.paragraph.length
+      this.percent = 0
+      this.styleExpression = `width:${this.percent}%`
+      this.pastWords = []
+      this.currentWord = this.paragraph[0]
+      this.futureWords = this.paragraph.splice(1)
+    })
   }
-
-  onEnter(value: string) { 
-    this.name = value; this.show = !this.show 
-    this.socketService.socket.emit("new-user", value)
-  }
-
-  onSpace(a) { 
-    if(this.i < this.p.length){
-      if(a.value.trim() === this.p[this.i]){
-        a.value = null
-        this.p.shift;
-        console.log(this.p)
-        this.i++
-        this.percent += (100 / this.p.length)
-        this.styleExpression = `width:${this.percent}%`
-      }
-      else
-        console.log("N")
+  
+  play() {
+    if (this.name && this.name.trim() != "") {
+      this.show = !this.show
+      document.getElementById("game").style.display = "block"
     }
   }
-    
+   
+  onInputChange(): void {
+    if (this.currentWord == this.currentInput && this.futureWords.length == 0) {
+      this.pastWords.push(this.currentWord);
+      this.currentInput = "";
+      this.currentWord = ""
+      this.percent = ((this.pastWords.length) / this.sumWord) * 100
+      this.styleExpression = `width:${this.percent}%`
+      document.getElementById("input").setAttribute("readonly", "true")
+    } else if (this.currentWord + " " == this.currentInput) {
+      this.pastWords.push(this.currentWord);
+      this.currentWord = this.futureWords[0];
+      this.futureWords = this.futureWords.splice(1);
+      this.currentInput = "";
+      this.percent = ((this.pastWords.length) / this.sumWord) * 100
+      this.styleExpression = `width:${this.percent}%`
+    } else if (this.currentWord.startsWith(this.currentInput)) {
+      this.warn = false;
+    } else {
+      this.warn = true;
+    }
+  }
+
+  getInputStyle(): string {
+    if (this.warn) {
+      return "#d08383"
+    } else {
+      return ""
+    }
+  }
+
+  getCurrentWordStyle(): string {
+    if (this.warn) {
+      return "#d08383"
+    } else {
+      return "#99cc00"
+    }
+  }
+
+  reset() {
+    this.ngOnInit()
+    this.show = !this.show
+    document.getElementById("game").style.display = "none"
+  }
 }

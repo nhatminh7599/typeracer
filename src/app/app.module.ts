@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms'
 
 //firebase
 import { AngularFireModule } from 'angularfire2';
@@ -18,7 +19,7 @@ import { SiginComponent } from './sigin/sigin.component';
 import { PlayComponent } from './play/play.component';
 import { TyperacerComponent } from './typeracer/typeracer.component';
 import { RoomComponent } from './room/room.component';
-
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -32,10 +33,19 @@ import { RoomComponent } from './room/room.component';
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     AppRoutingModule,
     // 3. Initialize
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFireDatabaseModule
+    AngularFireDatabaseModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot([
+      { path: '', component: HomeComponent },
+      { path: 'sigin', component: SiginComponent },
+      { path: 'play', component: PlayComponent },
+      { path: 'typeracer', component: TyperacerComponent },
+      { path: 'room', component: RoomComponent }
+    ])
   ],
   providers: [SocketioService],
   bootstrap: [AppComponent]

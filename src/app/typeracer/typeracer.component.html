@@ -1,19 +1,27 @@
 <div class="roomId container">
-    <h1 class="d-inline text-center mr-0">Room ID: {{ roomId }}</h1>
+    <h1 class="d-inline text-center mr-0" style="margin-bottom: 15px;">PRACTISE</h1>
 </div>
-<div class="container">
-    <input *ngIf='show' class ="row form-control" type="text" placeholder="Enter your name" #box (keyup.enter)="onEnter(box.value)"/>
-    <div *ngIf="!show" class="row"> 
-        <div class="col-1" style="padding: 0%;">{{ name }}</div>
-        <div  class="progress" style="padding: 0;width: 89%;">
-            
-            <div class="progress-bar" [style]="styleExpression">
-            </div>
+<div *ngIf="show" class="container">
+    <div class="row">
+        <input class ="col-5 form-control" type="text" placeholder="Enter your name" [(ngModel)]="name" style="margin: 0 50px 0 0;">
+        <button (click)="play()">Play</button>
+    </div>
+</div>
+
+<div style="display: none;" class="container" id="game"> 
+    <div class="row" style="margin-bottom: 20px;">
+        <h5 class="text-center col" >{{ name }}</h5>
+    </div>
+    <div  class="row progress" style="padding: 0;width: 89%;" style="margin-bottom: 20px;">
+        <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" [style]="styleExpression"></div>
+    </div>
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col">
+            <span>{{ pastWords.join(" ") +" "}}</span>
+            <span style="text-decoration: underline" [style.color]="getCurrentWordStyle()"> {{currentWord + " "}} </span>
+            <span>{{ futureWords.join(" ") }}</span>
         </div>
     </div>
-    
-    <div class="row paragraph container">{{ paragraph }}</div>
-    <input type="text" class="row contain form-control" #a (keyup.space)="onSpace(a)"/>
-    
-
-</div> 
+    <input id="input" type="text" class="form-control row" [(ngModel)]="currentInput" (ngModelChange)="onInputChange()"/>
+    <button class="row" style="margin-top: 20px;" (click)="reset()">Play again</button>
+</div>
