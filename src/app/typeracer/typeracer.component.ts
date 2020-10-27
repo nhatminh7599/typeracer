@@ -34,6 +34,7 @@ export class TyperacerComponent implements OnInit {
       this.styleExpression = `width:${this.percent}%`
       this.socketService.setupSocketConnection()
       
+      
     })
     
 
