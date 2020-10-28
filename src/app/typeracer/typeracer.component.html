@@ -17,11 +17,13 @@
     </div>
     <div class="row" style="margin-bottom: 20px;">
         <div class="col">
-            <span>{{ pastWords.join(" ") +" "}}</span>
-            <span style="text-decoration: underline" [style.color]="getCurrentWordStyle()"> {{currentWord + " "}} </span>
-            <span>{{ futureWords.join(" ") }}</span>
+            <span *ngIf="successWord" style="color: #99cc00;">{{ successWord.join(" ")}} </span>
+            <span *ngIf="startCurrentWord" name="start" style="text-decoration: underline" [style.color]="getCurrentWordStyle()">{{startCurrentWord}}</span>
+            <span *ngIf="currentWordError" name="error" style="text-decoration: underline" style="color: #d08383;">{{currentWordError}}</span>
+            <span *ngIf="endCurrentWord" name="end" style="text-decoration: underline">{{endCurrentWord}}</span>
+            <span *ngIf="nextWord"> {{nextWord.join(" ") }}</span>
         </div>
     </div>
-    <input id="input" type="text" class="form-control row" [(ngModel)]="currentInput" (ngModelChange)="onInputChange()"/>
+    <input id="input" type="text" class="form-control row" [style.color]="getCurrentWordStyle()" [(ngModel)]="input" (ngModelChange)="onInputChange()"/>
     <button class="row" style="margin-top: 20px;" (click)="reset()">Play again</button>
 </div>

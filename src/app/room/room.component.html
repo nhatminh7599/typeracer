@@ -1,7 +1,7 @@
 <div class="container">
     <div class="d-flex justify-content-around">
         <span style="font-weight: bold;"> {{name}} </span>
-        <span> romm ID: {{roomId}} </span>
+        <span> room ID: {{roomId}} </span>
     </div>
     <div class="row" style="margin-top: 20px;">
         <input placeholder="Enter room ID" type="text" [(ngModel)]="inputRoomId" class="form-control col-5" style="margin-left: 250px;"/>
@@ -24,10 +24,11 @@
         </td>
         <td class="col-4">
             <tr style="font-size: larger; font-weight: bold;">Who's here</tr>
-            <tr *ngFor="let player of playerList; index as i" id="list-player" class="border border-secondary rounded row" style="width: 100%; min-height: 100px;">
+            <tr  id="list-player" class="border border-secondary rounded row" style="width: 100%; min-height: 100px;">
                 <!-- list player -->
-                <div *ngIf="i == 0" style="font-size: small; font-weight: bold;">{{player}} (you)</div>
-                <div *ngIf="i != 0" style="font-size: small; font-weight: bold;">{{player}}</div>
+                <div *ngFor="let player of playerList; index as i" style="font-size: small; font-weight: bold;">
+                    {{player}} <span *ngIf="i > 1" style="font-size: small; font-weight: bold;"> (you)</span>
+                </div>
             </tr>
         </td>
     </table>
