@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { SocketioService } from "../socketio.service"
 
+
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
