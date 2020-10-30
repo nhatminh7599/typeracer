@@ -39,6 +39,7 @@ import { FormsModule } from '@angular/forms';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireDatabaseModule,
     ReactiveFormsModule,
+   
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
       { path: 'sigin', component: SiginComponent },

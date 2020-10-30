@@ -1,46 +1,57 @@
 import { Component, Injectable, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AngularFireDatabase } from 'angularfire2/database';
-
+import { SiginComponent } from '../sigin/sigin.component'
 
 @Component({
   selector: 'app-typeracer',
   templateUrl: './typeracer.component.html',
-  styleUrls: ['./typeracer.component.css']
+  styleUrls: ['./typeracer.component.css'],
 })
 
-@Injectable()
 export class TyperacerComponent implements OnInit {
+
   show: boolean
   percent: number
   name: string
   styleExpression: string
   data: any[]
   
-  public paragraph : string[]
-  public currentInput: string;
-  public pastWords: string[] = [];
-  public currentWord: string = "";
-  public futureWords: string[] = [];
-  public warn: boolean;
-  public sumWord: number;
+  input: string;
+  successWord: string[] = []
+  currentWord: string = ""
+  startCurrentWord: string = ""
+  endCurrentWord: string = ""
+  currentWordError: string = ""
+  nextWord: string[] = []
+  color: boolean;
+  sumWord: number;
+  countInput: number
+  isPlaying: boolean = false
 
-  constructor(private db: AngularFireDatabase) {
+  constructor(private db: AngularFireDatabase, private sigin: SiginComponent,   private route: ActivatedRoute,) {
     this.show = true
   } 
   
 
 
   ngOnInit(): void {
+    
     this.db.list('/data').valueChanges().subscribe(data => {
       this.data = data
-      this.paragraph = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
-      this.sumWord = this.paragraph.length
+      this.nextWord = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
+      console.log(this.nextWord)
+      this.sumWord = this.nextWord.length
       this.percent = 0
       this.styleExpression = `width:${this.percent}%`
 
-      this.pastWords = []
-      this.currentWord = this.paragraph[0]
-      this.futureWords = this.paragraph.splice(1)
+      this.countInput = 0
+      this.currentWord = this.nextWord.shift()
+      this.endCurrentWord = this.currentWord
+      this.input = "";
+      this.startCurrentWord = ""
+      this.currentWordError = ""
+      this.successWord = []
     })
   }
   
@@ -52,29 +63,41 @@ export class TyperacerComponent implements OnInit {
   }
    
   onInputChange(): void {
-    if (this.currentWord == this.currentInput && this.futureWords.length == 0) {
-      this.pastWords.push(this.currentWord);
-      this.currentInput = "";
+    this.countInput = this.input.length
+    if (this.currentWord == this.input && this.nextWord.length == 0) {
+      this.successWord.push(this.currentWord);
+      this.input = "";
       this.currentWord = ""
-      this.percent = ((this.pastWords.length) / this.sumWord) * 100
+      this.countInput = 0
+      this.startCurrentWord = ""
+      this.endCurrentWord = ""
+      this.currentWordError = ""
+      this.percent = ((this.successWord.length) / this.sumWord) * 100
       this.styleExpression = `width:${this.percent}%`
       document.getElementById("input").setAttribute("readonly", "true")
-    } else if (this.currentWord + " " == this.currentInput) {
-      this.pastWords.push(this.currentWord);
-      this.currentWord = this.futureWords[0];
-      this.futureWords = this.futureWords.splice(1);
-      this.currentInput = "";
-      this.percent = ((this.pastWords.length) / this.sumWord) * 100
+    } else if (this.currentWord + " " == this.input) {
+      this.successWord.push(this.currentWord);
+      this.currentWord = this.nextWord.shift();
+      this.input = "";
+      this.percent = ((this.successWord.length) / this.sumWord) * 100
       this.styleExpression = `width:${this.percent}%`
-    } else if (this.currentWord.startsWith(this.currentInput)) {
-      this.warn = false;
+      this.countInput = 0
+      this.startCurrentWord = ""
+      this.currentWordError = ""
+      this.endCurrentWord = this.currentWord
+    } else if (this.currentWord.startsWith(this.input) && this.countInput <= this.currentWord.length) {
+      this.startCurrentWord = this.currentWord.slice(0, this.countInput)
+      this.endCurrentWord = this.currentWord.slice(this.countInput, this.currentWord.length)
+      this.color = false;
+      this.currentWordError = ""
     } else {
-      this.warn = true;
+      this.currentWordError = this.currentWord.slice(this.startCurrentWord.length, this.input.length)
+      this.endCurrentWord = this.currentWord.slice(this.countInput, this.currentWord.length)
+      this.color = true;
     }
   }
-
   getInputStyle(): string {
-    if (this.warn) {
+    if (this.color) {
       return "#d08383"
     } else {
       return ""
@@ -82,7 +105,7 @@ export class TyperacerComponent implements OnInit {
   }
 
   getCurrentWordStyle(): string {
-    if (this.warn) {
+    if (this.color) {
       return "#d08383"
     } else {
       return "#99cc00"
@@ -93,5 +116,13 @@ export class TyperacerComponent implements OnInit {
     this.ngOnInit()
     this.show = !this.show
     document.getElementById("game").style.display = "none"
+    document.getElementById("input").setAttribute("readonly", "false")
+  }
+
+  wpm() {
+    if (this.isPlaying)
+    {
+      
+    }
   }
 }
