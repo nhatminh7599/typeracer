@@ -5,7 +5,7 @@
     </div>
     <div class="row" style="margin-top: 20px;">
         <input placeholder="Enter room ID" type="text" [(ngModel)]="inputRoomId" class="form-control col-5" style="margin-left: 250px;"/>
-        <input type="button" value="JOIN" (click)="joinRoom()" class="btn btn-primary" style="margin-left: 50px;"/>
+        <input type="button" value="JOIN" (click)="joinRoom(inputRoomId)" class="btn btn-primary" style="margin-left: 50px;"/>
     </div>
 </div>
 
@@ -17,18 +17,27 @@
     <table class="row" style="background-color: whitesmoke; padding: 10px">
         <td class="col-8">
             <tr style="font-size: larger; font-weight: bold;">Chat</tr>
-            <tr id="chatbox" class="border border-secondary rounded row" style="width: 100%; min-height: 100px;">
+            <tr class="border border-secondary rounded row" style="width: 100%; height: 200px;">
                 <!-- chat area -->
-                <div style="width: 100%; height: 100%;"></div>
+                <div id="chatbox" style="width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;">
+
+                </div>
+            </tr>
+            <tr class="row" style="width: 100%;">
+                <input type="text" class="form-control" style="margin-top: 10px;" [(ngModel)]="messageInput"/>
             </tr>
         </td>
         <td class="col-4">
             <tr style="font-size: larger; font-weight: bold;">Who's here</tr>
-            <tr  id="list-player" class="border border-secondary rounded row" style="width: 100%; min-height: 100px;">
+            <tr  id="list-player" class="border border-secondary rounded row" style="width: 100%; height: 200px;">
                 <!-- list player -->
-                <div *ngFor="let player of playerList; index as i" style="font-size: small; font-weight: bold;">
-                    {{player}} <span *ngIf="i > 1" style="font-size: small; font-weight: bold;"> (you)</span>
+                <div *ngFor="let player of playerList['users']" style="font-size: small; font-weight: bold;">
+                    {{player.userName}} <span *ngIf="player.id == id" style="font-size: small; font-weight: bold;"> (you)</span>
                 </div>
+                <!-- <div *ngIf="playerList.length == undefined" >{{playerList}}</div> -->
+            </tr>
+            <tr class="row" style="width: 100%;">
+                <input #input type="button" class="btn btn-primary" style="margin-top: 10px;" value="Chat" (click)="submitChat()"/>
             </tr>
         </td>
     </table>
