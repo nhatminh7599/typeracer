@@ -8,6 +8,11 @@
     </div>
 </div>
 
+<div class="container" style="margin-top: 20px;">
+    <div class="row text-center"><h1 class="text-center" style="width: 100%;">{{countDown}}</h1></div>
+    <div class="row text-center"><h1 class="text-center" style="width: 100%;">{{wordPerMinute}}</h1></div>
+</div>
+
 <div style="display: none;" class="container" id="game"> 
     <div class="row" style="margin-bottom: 20px;">
         <h5 class="text-center col" >{{ name }}</h5>
@@ -24,6 +29,6 @@
             <span *ngIf="nextWord"> {{nextWord.join(" ") }}</span>
         </div>
     </div>
-    <input id="input" type="text" class="form-control row" [style.color]="getCurrentWordStyle()" [(ngModel)]="input" (ngModelChange)="onInputChange()"/>
+    <input id="input" type="text" class="form-control row" [style.color]="getInputStyle()" [(ngModel)]="input" (ngModelChange)="onInputChange()"/>
     <button class="row" style="margin-top: 20px;" (click)="reset()">Play again</button>
 </div>

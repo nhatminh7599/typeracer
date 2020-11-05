@@ -14,10 +14,11 @@ export class RoomComponent implements OnInit {
   percent: number;
   name: string;
   styleExpression: string;
-  data: any[];
+  id: string;
   roomId: string;
   inputRoomId: string;
-  playerList: string[];
+  data: any[];
+  playerList: [] = [];
   
   public paragraph : string[]
   public currentInput: string;
@@ -27,19 +28,31 @@ export class RoomComponent implements OnInit {
   public warn: boolean;
   public sumWord: number;
 
+  //chat
+  messageInput: string = ""
+  message: string = ""
+  chatbox: any
+
   constructor(private db: AngularFireDatabase, private socketService: SocketioService) {
     this.name = String(Math.random()*100.)
-    this.playerList = []
-    this.socketService.setupSocketConnection()
-    this.socketService.socket.emit("new-user", this.name)
-    this.socketService.socket.on("connected", id => this.roomId = id)
-    this.socketService.socket.on("alert-join-room", list => {
-      this.playerList = list
-    })
+    socketService.setupSocketConnection()
     this.show = true
+    socketService.socket.emit("new-user", this.name)
+    socketService.socket.on("roomId", id => {
+      this.roomId = id
+      this.id = id
+    })
+    socketService.socket.on("roomUsers", users => {
+      this.playerList = users
+      console.log(this.playerList["users"])
+    })
   } 
   
   ngOnInit(): void {
+    this.chatbox = document.getElementById('chatbox')
+    this.socketService.socket.on("message", message => {
+      this.outputMessage(message)
+    })
     // this.db.list('/data').valueChanges().subscribe(data => {
     //   this.data = data
     //   this.paragraph = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
@@ -52,60 +65,28 @@ export class RoomComponent implements OnInit {
     // })
   }
   
-  // play() {
-  //   if (this.name && this.name.trim() != "") {
-  //     this.show = !this.show
-  //     document.getElementById("game").style.display = "block"
-  //   }
-  // }
-   
-  // onInputChange(): void {
-  //   if (this.currentWord == this.currentInput && this.futureWords.length == 0) {
-  //     this.pastWords.push(this.currentWord);
-  //     this.currentInput = "";
-  //     this.currentWord = ""
-  //     this.percent = ((this.pastWords.length) / this.sumWord) * 100
-  //     this.styleExpression = `width:${this.percent}%`
-  //     document.getElementById("input").setAttribute("readonly", "true")
-  //   } else if (this.currentWord + " " == this.currentInput) {
-  //     this.pastWords.push(this.currentWord);
-  //     this.currentWord = this.futureWords[0];
-  //     this.futureWords = this.futureWords.splice(1);
-  //     this.currentInput = "";
-  //     this.percent = ((this.pastWords.length) / this.sumWord) * 100
-  //     this.styleExpression = `width:${this.percent}%`
-  //   } else if (this.currentWord.startsWith(this.currentInput)) {
-  //     this.warn = false;
-  //   } else {
-  //     this.warn = true;
-  //   }
-  // }
-
-  // getInputStyle(): string {
-  //   if (this.warn) {
-  //     return "#d08383"
-  //   } else {
-  //     return ""
-  //   }
-  // }
-
-  // getCurrentWordStyle(): string {
-  //   if (this.warn) {
-  //     return "#d08383"
-  //   } else {
-  //     return "#99cc00"
-  //   }
-  // }
-
-  // reset() {
-  //   this.ngOnInit()
-  //   this.show = !this.show
-  //   document.getElementById("game").style.display = "none"
-  // }
-
-  joinRoom() {
-    this.socketService.socket.emit("join-room", this.inputRoomId)
+  joinRoom(roomId) {
+    this.socketService.socket.emit("join-room", roomId)
 
   }
 
+  // emit message to server
+  submitChat() {
+    if (this.messageInput) {
+      this.socketService.socket.emit("submit", this.messageInput)
+      this.messageInput = ""
+    }
+  }
+
+  outputMessage(message) {
+    const div = document.createElement('div')
+      div.style.width = "100%"
+      div.style.setProperty("word-wrap", "break-word")
+      div.style.padding = "1%"
+      div.style.textAlign = "justify"
+      div.innerHTML = `<p style="margin: 0;">${message.userName} <span>${message.time}</span></p>
+                      <p style="margin: 0;">${message.text}</p>`
+      this.chatbox.appendChild(div)
+      this.chatbox.scrollTop = this.chatbox.scrollHeight
+  }
 }

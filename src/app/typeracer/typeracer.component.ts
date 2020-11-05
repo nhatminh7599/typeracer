@@ -29,8 +29,18 @@ export class TyperacerComponent implements OnInit {
   countInput: number
   isPlaying: boolean = false
 
+<<<<<<< HEAD
   constructor(private db: AngularFireDatabase, private sigin: SiginComponent,   private route: ActivatedRoute,) {
+=======
+  countDown: number
+  wordPerMinute: number
+  time: number = 0
+
+  constructor(private db: AngularFireDatabase) {
+>>>>>>> cae372909e2fa76edaea64d7a5bd1670b4644768
     this.show = true
+    this.countDown = 3
+    this.wordPerMinute = 0
   } 
   
 
@@ -57,8 +67,23 @@ export class TyperacerComponent implements OnInit {
   
   play() {
     if (this.name && this.name.trim() != "") {
-      this.show = !this.show
-      document.getElementById("game").style.display = "block"
+      var count = setInterval(() => { 
+        if(this.countDown > 0) {
+          this.countDown--
+        }
+        else {
+          this.show = !this.show
+          document.getElementById("game").style.display = "block"
+          document.getElementById("input").focus()
+          this.isPlaying = true
+          this.cpm()
+          this.countDown = 60
+        }
+      }, 1000);
+
+      setTimeout(() => {
+        clearInterval(count)
+      }, 4000);
     }
   }
    
@@ -66,15 +91,9 @@ export class TyperacerComponent implements OnInit {
     this.countInput = this.input.length
     if (this.currentWord == this.input && this.nextWord.length == 0) {
       this.successWord.push(this.currentWord);
-      this.input = "";
-      this.currentWord = ""
-      this.countInput = 0
-      this.startCurrentWord = ""
-      this.endCurrentWord = ""
-      this.currentWordError = ""
       this.percent = ((this.successWord.length) / this.sumWord) * 100
       this.styleExpression = `width:${this.percent}%`
-      document.getElementById("input").setAttribute("readonly", "true")
+      this.endGame()
     } else if (this.currentWord + " " == this.input) {
       this.successWord.push(this.currentWord);
       this.currentWord = this.nextWord.shift();
@@ -116,13 +135,52 @@ export class TyperacerComponent implements OnInit {
     this.ngOnInit()
     this.show = !this.show
     document.getElementById("game").style.display = "none"
+<<<<<<< HEAD
     document.getElementById("input").setAttribute("readonly", "false")
+=======
+    this.countDown = 3
+>>>>>>> cae372909e2fa76edaea64d7a5bd1670b4644768
+  }
+  
+  cpm () {
+
+    var speed = () => {
+      if (this.isPlaying) {
+        if(this.successWord.length > 0) {
+          this.wordPerMinute = (this.successWord.length / (this.time / 1000)) * 60
+          this.time += 1000
+        }
+        else {
+          this.wordPerMinute
+          this.time += 1000
+        }
+      }
+      else {
+        this.time = 0
+        this.endGame()
+        clearInterval(getSpeed)
+      }
+    }
+
+    var timeCountDown = () => {
+      if(this.countDown > 0) {
+        this.countDown--
+      }
+      else {
+        this.isPlaying = false
+        this.endGame()
+        clearInterval(getTime)
+      }
+    }
+
+    var getTime = setInterval(timeCountDown, 1000)
+    var getSpeed = setInterval(speed, 1000)
   }
 
-  wpm() {
-    if (this.isPlaying)
-    {
-      
-    }
+  endGame() {
+    this.input = "";
+    this.countInput = 0
+    this.isPlaying = false
+    document.getElementById("input").setAttribute("readonly", "true")
   }
 }

@@ -46,7 +46,7 @@ export class SiginComponent implements OnInit {
     document.cookie = "name="+this.name;
   }
 
-  facebookLogIn(){
+  facebookLogIn(){22
     firebase.initializeApp(firebaseConfig)
     var provider = new firebase.auth.FacebookAuthProvider();
     provider.addScope('user_birthday');

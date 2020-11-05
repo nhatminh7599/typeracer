@@ -14,7 +14,7 @@ export const environment = {
     appId: "1:1047389231963:web:2c5c1952ee92dd370a587e",
     measurementId: "G-RYEVZ0Z90P"
   },
-  SOCKET_ENDPOINT: 'http://localhost:8888'
+  SOCKET_ENDPOINT: 'http://localhost:3000'
 };
 
 /*
