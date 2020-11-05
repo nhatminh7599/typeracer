@@ -10,6 +10,36 @@
 </div>
 
 <!-- gameplay area -->
+<div class="container" style="margin-top: 15px;">
+    <div *ngFor="let player of playerList['users']"  class="row progress" style="padding: 0;width: 89%;" style="margin-bottom: 20px;">
+        <div id="id" class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" [style]="styleExpression"></div>
+    </div>
+</div>
+
+<div *ngIf="show" class="container">
+    <div class="row">
+        <button (click)="ready()">Ready</button>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 20px;">
+    <div class="row text-center"><h1 class="text-center" style="width: 100%;">{{countDown}}</h1></div>
+    <div class="row text-center"><h1 class="text-center" style="width: 100%;">{{wordPerMinute}}</h1></div>
+</div>
+
+<div style="display: none;" class="container" id="game"> 
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="col">
+            <span *ngIf="successWord" style="color: #99cc00;">{{ successWord.join(" ")}} </span>
+            <span *ngIf="startCurrentWord" name="start" style="text-decoration: underline" [style.color]="getCurrentWordStyle()">{{startCurrentWord}}</span>
+            <span *ngIf="currentWordError" name="error" style="text-decoration: underline" style="color: #d08383;">{{currentWordError}}</span>
+            <span *ngIf="endCurrentWord" name="end" style="text-decoration: underline">{{endCurrentWord}}</span>
+            <span *ngIf="nextWord"> {{nextWord.join(" ") }}</span>
+        </div>
+    </div>
+    <input id="input" type="text" class="form-control row" [style.color]="getInputStyle()" [(ngModel)]="inputValue" (ngModelChange)="onInputChange()" />
+    <button class="row" style="margin-top: 20px;" (click)="reset()">Play again</button>
+</div>
 
 
 <!-- player list area -->
@@ -31,7 +61,7 @@
             <tr style="font-size: larger; font-weight: bold;">Who's here</tr>
             <tr  id="list-player" class="border border-secondary rounded row" style="width: 100%; height: 200px;">
                 <!-- list player -->
-                <div *ngFor="let player of playerList['users']" style="font-size: small; font-weight: bold;">
+                <div *ngFor="let player of playerList['users']" style="font-size: small; font-weight: bold; width: 100%;">
                     {{player.userName}} <span *ngIf="player.id == id" style="font-size: small; font-weight: bold;"> (you)</span>
                 </div>
                 <!-- <div *ngIf="playerList.length == undefined" >{{playerList}}</div> -->

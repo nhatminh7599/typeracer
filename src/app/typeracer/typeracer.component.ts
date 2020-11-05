@@ -29,6 +29,8 @@ export class TyperacerComponent implements OnInit {
   countDown: number
   wordPerMinute: number
   time: number = 0
+  arr1: any[] = []
+  arr2: any[] = []
 
   constructor(private db: AngularFireDatabase) {
     this.show = true
@@ -56,9 +58,10 @@ export class TyperacerComponent implements OnInit {
   
   play() {
     if (this.name && this.name.trim() != "") {
-      var count = setInterval(() => { 
+      this.arr1.push(setInterval(() => { 
         if(this.countDown > 0) {
           this.countDown--
+          console.log("ddd")
         }
         else {
           this.show = !this.show
@@ -67,12 +70,9 @@ export class TyperacerComponent implements OnInit {
           this.isPlaying = true
           this.cpm()
           this.countDown = 60
+          this.clearInterVal(this.arr1)
         }
-      }, 1000);
-
-      setTimeout(() => {
-        clearInterval(count)
-      }, 4000);
+      }, 1000))
     }
   }
    
@@ -125,41 +125,38 @@ export class TyperacerComponent implements OnInit {
     this.show = !this.show
     document.getElementById("game").style.display = "none"
     this.countDown = 3
+    this.clearInterVal(this.arr1)
+    this.clearInterVal(this.arr2)
   }
   
   cpm () {
 
-    var speed = () => {
-      if (this.isPlaying) {
-        if(this.successWord.length > 0) {
-          this.wordPerMinute = (this.successWord.length / (this.time / 1000)) * 60
-          this.time += 1000
-        }
-        else {
-          this.wordPerMinute
-          this.time += 1000
-        }
-      }
-      else {
-        this.time = 0
-        this.endGame()
-        clearInterval(getSpeed)
-      }
-    }
-
-    var timeCountDown = () => {
+    this.arr2.push(setInterval(() => {
+      console.log("cpm")
       if(this.countDown > 0) {
         this.countDown--
       }
       else {
         this.isPlaying = false
         this.endGame()
-        clearInterval(getTime)
+        this.clearInterVal(this.arr2)
       }
-    }
+    }, 1000))
 
-    var getTime = setInterval(timeCountDown, 1000)
-    var getSpeed = setInterval(speed, 1000)
+    this.arr2.push(setInterval(() => {
+      if (this.isPlaying) {
+        if(this.successWord.length > 0) {
+          this.time += 1000
+          let character = this.successWord.length + this.startCurrentWord.length
+          this.wordPerMinute = (character / (this.time / 1000)) * 60
+        }
+      }
+      else {
+        this.time = 0
+        this.endGame()
+        this.clearInterVal(this.arr2)
+      }
+    }, 1000))
   }
 
   endGame() {
@@ -167,5 +164,14 @@ export class TyperacerComponent implements OnInit {
     this.countInput = 0
     this.isPlaying = false
     document.getElementById("input").setAttribute("readonly", "true")
+    this.clearInterVal(this.arr1)
+    this.clearInterVal(this.arr2)
+  }
+
+  clearInterVal(arr) {
+    arr.map((a) => {
+      clearInterval(a);
+      arr = [];
+    })
   }
 }

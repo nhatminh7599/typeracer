@@ -20,13 +20,24 @@ export class RoomComponent implements OnInit {
   data: any[];
   playerList: [] = [];
   
-  public paragraph : string[]
-  public currentInput: string;
-  public pastWords: string[] = [];
-  public currentWord: string = "";
-  public futureWords: string[] = [];
-  public warn: boolean;
-  public sumWord: number;
+  inputValue: string = "";
+  successWord: string[] = []
+  currentWord: string = ""
+  startCurrentWord: string = ""
+  endCurrentWord: string = ""
+  currentWordError: string = ""
+  nextWord: string[] = []
+  color: boolean;
+  sumWord: number;
+  countInput: number
+  isPlaying: boolean = false
+  isReady: boolean = false
+
+  countDown: number
+  wordPerMinute: number
+  time: number = 0
+  arr1: any[] = []
+  arr2: any[] = []
 
   //chat
   messageInput: string = ""
@@ -34,6 +45,9 @@ export class RoomComponent implements OnInit {
   chatbox: any
 
   constructor(private db: AngularFireDatabase, private socketService: SocketioService) {
+    this.show = true
+    this.countDown = 3
+    this.wordPerMinute = 0
     this.name = String(Math.random()*100.)
     socketService.setupSocketConnection()
     this.show = true
@@ -44,7 +58,6 @@ export class RoomComponent implements OnInit {
     })
     socketService.socket.on("roomUsers", users => {
       this.playerList = users
-      console.log(this.playerList["users"])
     })
   } 
   
@@ -53,16 +66,20 @@ export class RoomComponent implements OnInit {
     this.socketService.socket.on("message", message => {
       this.outputMessage(message)
     })
-    // this.db.list('/data').valueChanges().subscribe(data => {
-    //   this.data = data
-    //   this.paragraph = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
-    //   this.sumWord = this.paragraph.length
-    //   this.percent = 0
-    //   this.styleExpression = `width:${this.percent}%`
-    //   this.pastWords = []
-    //   this.currentWord = this.paragraph[0]
-    //   this.futureWords = this.paragraph.splice(1)
-    // })
+
+    this.db.list('/data').valueChanges().subscribe(data => {
+      this.data = data
+      this.nextWord = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
+      this.sumWord = this.nextWord.length
+      this.percent = 0
+      this.styleExpression = `width:${this.percent}%`
+      this.countInput = 0
+      this.currentWord = this.nextWord.shift()
+      this.endCurrentWord = this.currentWord
+      this.startCurrentWord = ""
+      this.currentWordError = ""
+      this.successWord = []
+    })
   }
   
   joinRoom(roomId) {
@@ -88,5 +105,126 @@ export class RoomComponent implements OnInit {
                       <p style="margin: 0;">${message.text}</p>`
       this.chatbox.appendChild(div)
       this.chatbox.scrollTop = this.chatbox.scrollHeight
+  }
+
+
+  // Game PLay
+  play() {
+    this.arr1.push(setInterval(() => { 
+      if(this.countDown > 0) {
+        this.countDown--
+      }
+      else {
+        this.show = !this.show
+        document.getElementById("game").style.display = "block"
+        document.getElementById("input").focus()
+        this.isPlaying = true
+        this.cpm()
+        this.countDown = 60
+        this.clearInterVal(this.arr1)
+      }
+    }, 1000))
+  }
+   
+  onInputChange(): void {
+    this.countInput = this.inputValue.length
+    if (this.currentWord == this.inputValue && this.nextWord.length == 0) {
+      this.successWord.push(this.currentWord);
+      this.percent = ((this.successWord.length) / this.sumWord) * 100
+      this.styleExpression = `width:${this.percent}%`
+      this.endGame()
+    } else if (this.currentWord + " " == this.inputValue) {
+      this.successWord.push(this.currentWord);
+      this.currentWord = this.nextWord.shift();
+      this.inputValue = "";
+      this.percent = ((this.successWord.length) / this.sumWord) * 100
+      this.styleExpression = `width:${this.percent}%`
+      this.countInput = 0
+      this.startCurrentWord = ""
+      this.currentWordError = ""
+      this.endCurrentWord = this.currentWord
+    } else if (this.currentWord.startsWith(this.inputValue) && this.countInput <= this.currentWord.length) {
+      this.startCurrentWord = this.currentWord.slice(0, this.countInput)
+      this.endCurrentWord = this.currentWord.slice(this.countInput, this.currentWord.length)
+      this.color = false;
+      this.currentWordError = ""
+    } else {
+      this.currentWordError = this.currentWord.slice(this.startCurrentWord.length, this.inputValue.length)
+      this.endCurrentWord = this.currentWord.slice(this.countInput, this.currentWord.length)
+      this.color = true;
+    }
+  }
+  getInputStyle(): string {
+    if (this.color) {
+      return "#d08383"
+    } else {
+      return ""
+    }
+  }
+
+  getCurrentWordStyle(): string {
+    if (this.color) {
+      return "#d08383"
+    } else {
+      return "#99cc00"
+    }
+  }
+
+  reset() {
+    this.ngOnInit()
+    this.show = !this.show
+    document.getElementById("game").style.display = "none"
+    this.countDown = 3
+    this.clearInterVal(this.arr1)
+    this.clearInterVal(this.arr2)
+  }
+  
+  cpm () {
+
+    this.arr2.push(setInterval(() => {
+      if(this.countDown > 0) {
+        this.countDown--
+      }
+      else {
+        this.isPlaying = false
+        this.endGame()
+        this.clearInterVal(this.arr2)
+      }
+    }, 1000))
+
+    this.arr2.push(setInterval(() => {
+      if (this.isPlaying) {
+        if(this.successWord.length > 0) {
+          this.time += 1000
+          let character = this.successWord.length + this.startCurrentWord.length
+          this.wordPerMinute = (character / (this.time / 1000)) * 60
+        }
+      }
+      else {
+        this.time = 0
+        this.endGame()
+        this.clearInterVal(this.arr2)
+      }
+    }, 1000))
+  }
+
+  endGame() {
+    this.inputValue = "";
+    this.countInput = 0
+    this.isPlaying = false
+    document.getElementById("input").setAttribute("readonly", "true")
+    this.clearInterVal(this.arr1)
+    this.clearInterVal(this.arr2)
+  }
+
+  clearInterVal(arr) {
+    arr.map((a) => {
+      clearInterval(a);
+      arr = [];
+    })
+  }
+
+  ready() {
+    this.isReady = true
   }
 }
