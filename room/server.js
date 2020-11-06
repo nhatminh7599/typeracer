@@ -26,7 +26,7 @@ io.on('connection', socket => {
     socket.on("new-user", ({name, pagaraph}) => {
         user.userName = name
         user.pagaraph = pagaraph
-        user.progress = 0
+        user.progress = ""
         userJoined(user)
         io.to(user.roomId).emit('roomUsers',{users: getRoomUsers(user.roomId)})
     })
@@ -57,6 +57,12 @@ io.on('connection', socket => {
     socket.on("submit", message => {
         io.to(user.roomId).emit('message', formatMessage(user.userName, message))
     })
+
+    // Listen for on progress
+    socket.on("on-progress", progress => {
+        user.progress = progress
+        io.to(user.roomId).emit("on-progress", {users: getRoomUsers(user.roomId)})
+    })
     
     // Runs when client disconnects
     socket.on('disconnect', () => {
@@ -65,7 +71,7 @@ io.on('connection', socket => {
                 socket.broadcast.to(user.roomId).emit('message', formatMessage(botName, `${user.userName} has left.`))
                 
                 // Send users info
-                io.to(user.roomId).emit('roomUsers',{users: getRoomUsers(user.roomId)})
+                io.to(user.roomId).emit('roomUsers', {users: getRoomUsers(user.roomId)})
             })
         })
     })

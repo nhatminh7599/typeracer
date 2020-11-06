@@ -62,8 +62,12 @@ export class RoomComponent implements OnInit {
     })
     socketService.socket.on("roomPagaraph", pagaraph => {
       this.data = pagaraph
-      console.log(this.data)
       this.loadData()
+    })
+
+    socketService.socket.on("on-progress", users => {
+      this.playerList = users.users
+      console.log(this.playerList)
     })
   } 
   
@@ -142,6 +146,7 @@ export class RoomComponent implements OnInit {
       this.successWord.push(this.currentWord);
       this.percent = ((this.successWord.length) / this.sumWord) * 100
       this.styleExpression = `width:${this.percent}%`
+      this.socketService.socket.emit("on-progress", this.styleExpression)
       this.endGame()
     } else if (this.currentWord + " " == this.inputValue) {
       this.successWord.push(this.currentWord);
@@ -153,6 +158,7 @@ export class RoomComponent implements OnInit {
       this.startCurrentWord = ""
       this.currentWordError = ""
       this.endCurrentWord = this.currentWord
+      this.socketService.socket.emit("on-progress", this.styleExpression)
     } else if (this.currentWord.startsWith(this.inputValue) && this.countInput <= this.currentWord.length) {
       this.startCurrentWord = this.currentWord.slice(0, this.countInput)
       this.endCurrentWord = this.currentWord.slice(this.countInput, this.currentWord.length)
@@ -222,6 +228,7 @@ export class RoomComponent implements OnInit {
     this.inputValue = "";
     this.countInput = 0
     this.isPlaying = false
+    this.startCurrentWord = ""
     document.getElementById("input").setAttribute("readonly", "true")
     this.clearInterVal(this.arr1)
     this.clearInterVal(this.arr2)
