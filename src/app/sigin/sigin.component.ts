@@ -18,14 +18,16 @@ export class SiginComponent implements OnInit {
   @ViewChild('loginRef', {static: true }) loginElement: ElementRef;
   a: any
   auth:firebase.auth.UserCredential
-  name: string = ""
+  name: any
+  obj = {}
   constructor() { }
 
   ngOnInit(): void {
   }
 
 
-  googleLogIn(){
+  async googleLogIn(){
+    var res = {}
     var  auth:firebase.auth.UserCredential
     firebase.initializeApp(firebaseConfig)
     var provider = new firebase.auth.GoogleAuthProvider();
@@ -33,17 +35,17 @@ export class SiginComponent implements OnInit {
    firebase.auth().languageCode = 'pt';
     // To apply the default browser preference instead of explicitly setting it.
     // firebase.auth().useDeviceLanguage();
-    firebase.auth().signInWithPopup(provider).then(function(result) {
+    await firebase.auth().signInWithPopup(provider).then(function(result) {
       console.log("Succes")
       console.log(result)
-      this.name = result.additionalUserInfo.profile["name"]
-      document.cookie = "name="+ this.name
-      console.log(this.name)
+      res = result
+      
+      console.log(res)
     })
     .catch(function(error) {
       console.log("Fail")
     });
-    document.cookie = "name="+this.name;
+    document.cookie = await "name="+ res["user"]["displayName"];
   }
 
   facebookLogIn(){22

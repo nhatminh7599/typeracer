@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from 'angularfire2/database';
 import { SocketioService } from "../socketio.service"
-
+import { CookieService } from 'ngx-cookie-service'
 
 @Component({
   selector: 'app-room',
@@ -33,10 +33,11 @@ export class RoomComponent implements OnInit {
   message: string = ""
   chatbox: any
 
-  constructor(private db: AngularFireDatabase, private socketService: SocketioService) {
+  constructor(private db: AngularFireDatabase, private socketService: SocketioService, private cookie: CookieService) {
     this.name = String(Math.random()*100.)
     socketService.setupSocketConnection()
     this.show = true
+    this. name = cookie.get("name")
     socketService.socket.emit("new-user", this.name)
     socketService.socket.on("roomId", id => {
       this.roomId = id

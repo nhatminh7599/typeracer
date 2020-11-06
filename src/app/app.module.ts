@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms'
-
+import { CookieService } from 'ngx-cookie-service'
 //firebase
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -39,6 +39,7 @@ import { FormsModule } from '@angular/forms';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireDatabaseModule,
     ReactiveFormsModule,
+    
    
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
@@ -48,7 +49,7 @@ import { FormsModule } from '@angular/forms';
       { path: 'room', component: RoomComponent }
     ])
   ],
-  providers: [SocketioService],
+  providers: [SocketioService,CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
