@@ -12,7 +12,7 @@
 <!-- gameplay area -->
 <div class="container" style="margin-top: 15px;">
     <div *ngFor="let player of playerList"  class="row progress" style="padding: 0;width: 89%;" style="margin-bottom: 20px;">
-        <div [id]="id" class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" [style]="styleExpression"></div>
+        <div [id]="id" class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" [style]="player.progress"></div>
     </div>
 </div>
 
