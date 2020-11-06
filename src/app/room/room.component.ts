@@ -17,7 +17,7 @@ export class RoomComponent implements OnInit {
   id: string;
   roomId: string;
   inputRoomId: string;
-  data: any[];
+  data: any;
   playerList: [] = [];
   
   inputValue: string = "";
@@ -51,13 +51,18 @@ export class RoomComponent implements OnInit {
     this.name = String(Math.random()*100.)
     socketService.setupSocketConnection()
     this.show = true
-    socketService.socket.emit("new-user", this.name)
-    socketService.socket.on("roomId", id => {
+    this.socketService.socket.on("roomId", id => {
       this.roomId = id
       this.id = id
     })
     socketService.socket.on("roomUsers", users => {
-      this.playerList = users
+      this.playerList = users.users
+      console.log(this.playerList)
+    })
+    socketService.socket.on("roomPagaraph", pagaraph => {
+      this.data = pagaraph
+      console.log(this.data)
+      this.loadData()
     })
   } 
   
@@ -66,20 +71,24 @@ export class RoomComponent implements OnInit {
     this.socketService.socket.on("message", message => {
       this.outputMessage(message)
     })
-
-    this.db.list('/data').valueChanges().subscribe(data => {
-      this.data = data
-      this.nextWord = this.data[Math.ceil(Math.random()*100%7)-1].split(/\s/)
-      this.sumWord = this.nextWord.length
-      this.percent = 0
-      this.styleExpression = `width:${this.percent}%`
-      this.countInput = 0
-      this.currentWord = this.nextWord.shift()
-      this.endCurrentWord = this.currentWord
-      this.startCurrentWord = ""
-      this.currentWordError = ""
-      this.successWord = []
+    this.db.list('/data').valueChanges().subscribe(async data => {
+      this.data = await data[Math.ceil(Math.random()*100%7)-1]
+      this.loadData()
+      this.socketService.socket.emit("new-user", {name: this.name, pagaraph: this.data})
     })
+  }
+
+  loadData() {
+    this.nextWord = this.data.split(/\s/)
+    this.sumWord = this.nextWord.length
+    this.percent = 0
+    this.styleExpression = `width:${this.percent}%`
+    this.countInput = 0
+    this.currentWord = this.nextWord.shift()
+    this.endCurrentWord = this.currentWord
+    this.startCurrentWord = ""
+    this.currentWordError = ""
+    this.successWord = []
   }
   
   joinRoom(roomId) {
@@ -226,5 +235,9 @@ export class RoomComponent implements OnInit {
 
   ready() {
     this.isReady = true
+    this.socketService.socket.emit("ready", this.isReady)
+    this.socketService.socket.on("start-game", () => {
+      this.play()
+    })
   }
 }

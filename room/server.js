@@ -3,7 +3,7 @@ const http = require('http')
 const socketio = require('socket.io')
 const formatMessage = require('./utils/message')
 const user = require('./utils/user')
-const { users, userJoined, getUsers, newUser, userLeave, getRoomUsers } = require('./utils/user')
+const { users, userJoined, getUsers, newUser, userLeave, getRoomUsers, checkReady, getRoomPagaraph } = require('./utils/user')
 
 const app = express()
 const server = http.createServer(app)
@@ -23,17 +23,19 @@ io.on('connection', socket => {
     socket.emit('message', formatMessage(botName, 'WELCOME'))
     
     // New user
-    socket.on("new-user", name => {
+    socket.on("new-user", ({name, pagaraph}) => {
         user.userName = name
+        user.pagaraph = pagaraph
+        user.progress = 0
         userJoined(user)
         io.to(user.roomId).emit('roomUsers',{users: getRoomUsers(user.roomId)})
     })
 
     // Client request joins room
-    socket.on('join-room', (roomId) => {
-        user = newUser(user.id, user.userName, roomId)
-        userJoined(user)
-        
+    socket.on('join-room', async (roomId) => {
+        user.roomId = await roomId
+        user.pagaraph = await getRoomPagaraph(roomId)
+
         socket.join(user.roomId)
         
         // Broadcast when a user connects
@@ -41,6 +43,14 @@ io.on('connection', socket => {
         
         // Send users info
         io.to(user.roomId).emit('roomUsers',{users: getRoomUsers(user.roomId)})
+        io.to(user.roomId).emit('roomPagaraph',getRoomPagaraph(user.roomId))
+    })
+
+    socket.on("ready", async isReady => {
+        user.isReady = isReady
+        if (await checkReady(user.roomId)) {
+            io.to(user.roomId).emit('start-game')
+        }
     })
     
     // Listen for chatMessage
@@ -61,4 +71,4 @@ io.on('connection', socket => {
     })
 })
 
-server.listen(PORT, () => console.log(`localhost:${PORT}`))
+server.listen(PORT)

@@ -4,6 +4,8 @@ const users = [];
 // new user
 function newUser(id, userName, roomId) {
     const user = { id, userName, roomId }
+    user.isReady = false
+    user.pagaraph = ""
     return user
 }
 
@@ -18,10 +20,23 @@ function getUsers(id) {
     return users.find(user => user.id == id)
 }
 
+async function checkReady(roomId) {
+    list = await getRoomUsers(roomId)
+    let kq = await true
+    if(list) {
+        for(let i = 0; i < list.length; i++){
+            if (await !list[i].isReady) {
+                kq = await false
+                break
+            }
+        }
+    }
+    return await kq
+}
+
 // User leaves chat
 function userLeave (id, result) {
     let us = []
-    console.log(users)
     for(let i = 0; i < users.length; i++)
     {
         if(users[i].id == id)
@@ -31,7 +46,6 @@ function userLeave (id, result) {
                 i--
             }
     }
-    console.log(users)
     result(us)
 }
 
@@ -40,11 +54,18 @@ function getRoomUsers (roomId) {
     return users.filter(user => user.roomId == roomId)
 }
 
+function getRoomPagaraph (roomId) {
+    let user = getUsers(roomId)
+    return user.pagaraph
+}
+
 module.exports = {
     users,
     userJoined,
     getUsers,
     newUser,
     userLeave,
-    getRoomUsers
+    getRoomUsers,
+    checkReady,
+    getRoomPagaraph
 }
